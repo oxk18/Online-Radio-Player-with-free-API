@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Radio Player</title>
+    <style>
+
+    @import url(https://fonts.googleapis.com/css?family=Abril+Fatface&display=swap);
+
+
+        body {
+            font-family: Arial, sans-serif;            
+            margin: 20px;
+            background-color: rgb(0, 0, 0);
+        }
+        h1{
+    font-size: 3.5rem;
+    line-height: 80%;
+    width: 100%;
+    text-align: center;
+    /*color: #b9dfff;*/
+    /*color: #fff;*/
+    color: black;
+    font-family: "Zefani";
+    font-family: 'Abril Fatface';
+    margin: 1rem auto;
+    position: relative;    
+    padding: 1rem 0 1.2rem;
+    text-shadow: 0 0 5px #fff,0 0 10px #fff,0 0 15px #fff,0 0 20px #228dff,0 0 35px #228dff,0 0 40px #228dff;
+ }
+
+
+
+
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+            margin-right: 10px;
+            
+        }
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .radio-station {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: rgb(0, 0, 0);
+            color: rgb(255, 255, 255)
+        }
+        .radio-station h3 {
+            margin: 0;
+            color: rgb(255, 255, 255);
+            background-color:  rgb(0, 0, 0)
+        }
+        audio {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+.button-85 {  
+  /*padding: 0.6em 9em;*/  
+  padding: 0.6em 8em;  
+  border: none;
+  outline: none;
+  color: rgb(255, 255, 255);
+  background: #111;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  margin: 10px
+}
+
+.button-85:before {
+  content: "";
+  background: linear-gradient(
+    45deg,
+    #ff0000,
+    #ff7300,
+    #fffb00,
+    #48ff00,
+    #00ffd5,
+    #002bff,
+    #7a00ff,
+    #ff00c8,
+    #ff0000
+  );
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  background-size: 400%;
+  z-index: -1;
+  filter: blur(5px);
+  -webkit-filter: blur(5px);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  animation: glowing-button-85 20s linear infinite;
+  transition: opacity 0.3s ease-in-out;
+  border-radius: 10px;
+}
+
+@keyframes glowing-button-85 {
+  0% {
+    background-position: 0 0;
+  }
+  50% {
+    background-position: 400% 0;
+  }
+  100% {
+    background-position: 0 0;
+  }
+}
+
+.button-85:after {
+  z-index: -1;
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #222;
+  left: 0;
+  top: 0;
+  border-radius: 10px;
+}
+</style>
+
+
+</head>
+<body>
+    <h1>Online Radio Player</h1>
+    <!--<input type="text" id="searchInput" placeholder="Search for a radio station...">
+    <button onclick="searchRadioStations()">Search</button>-->
+    <button class="button-85" role="button" onclick="searchRadioStations()">KOREA RADIO</button>
+    <button class="button-85" role="button" onclick="searchRadioStationsus()">USA RADIO</button>    
+
+    <button class="button-85" role="button" onclick="play()">ATLANTA RADIO KOREA</button>
+    <audio id="audio" src="https://s2.radio.co/s481a3f747/listen"></audio>
+    <script>let play = function(){document.getElementById("audio").play()}</script>  
+    
+    <button class="button-85" role="button" onclick="playAudio1()">CALIFORNIA RADIO KOREA</button>
+    <audio id="audio1" src="https://onair.radiokorea.com/"></audio>
+    <script>const playAudio1 = function(){document.getElementById("audio1").play()}</script>
+
+    <button class="button-85" role="button" onclick="playAudio2()">NEW YORK RADIO KOREA</button>
+    <audio id="audio2" src="https://streams.radio.co/s839c1142b/listen"></audio>
+    <script>const playAudio2 = function(){document.getElementById("audio2").play()}</script>
+ 
+   
+
+    <div id="radioStations"></div>
+
+    <script>
+        // 라디오 방송국 검색 함수 
+        async function searchRadioStations() {
+    const apiUrl = 'https://nl1.api.radio-browser.info/json/stations/search';
+    const params = new URLSearchParams({
+        countrycode: 'KR',
+        limit: 20,
+        hidebroken: true
+    });
+    
+    try {
+        const response = await fetch(`${apiUrl}?${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'OnlineRadioPlayer/1.0'
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        displayRadioStations(data);
+    } catch (error) {
+        console.error('Error fetching radio stations:', error);
+        alert('라디오 방송국을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
+    }
+}
+
+
+        // 라디오 방송국 목록 표시 함수
+        function displayRadioStations(stations) {
+            const radioStationsContainer = document.getElementById('radioStations');
+            radioStationsContainer.innerHTML = ''; // 이전 결과 초기화
+
+            if (stations.length === 0) {
+                radioStationsContainer.innerHTML = '<p>No stations found.</p>';
+                return;
+            }
+
+            stations.forEach(station => {
+                const stationElement = document.createElement('div');                
+                stationElement.className = 'radio-station';
+
+                stationElement.innerHTML = `
+                   <h3>${station.name}</h3>
+                    <p><strong>Country:</strong> ${station.country}</p>
+                    <p><strong>Tags:</strong> ${station.tags}</p>                    
+                    <audio muted controls>                        
+                        <source src="${station.url_resolved}" type="audio/mpeg">                       
+                        Your browser does not support the audio element.
+                    </audio>
+                    
+                    
+                `;
+
+                radioStationsContainer.appendChild(stationElement);
+            });
+        }
+    </script>
+    <script>
+     document.addEventListener('play', function(e){
+    var audios = document.getElementsByTagName('audio');
+    for(var i = 0, len = audios.length; i < len;i++){
+        if(audios[i] != e.target){
+            audios[i].pause();
+        }
+    }
+}, true);
+    </script>
+
+    <script>
+        // 라디오 방송국 검색 함수
+        async function searchRadioStationsus() {
+    const apiUrl = 'https://nl1.api.radio-browser.info/json/stations/search';
+    const params = new URLSearchParams({
+        countrycode: 'US',
+        limit: 20,
+        hidebroken: true
+    });
+    
+    try {
+        const response = await fetch(`${apiUrl}?${params}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'OnlineRadioPlayer/1.0'
+            }
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        displayRadioStations(data);
+    } catch (error) {
+        console.error('Error fetching radio stations:', error);
+        alert('Failed to fetch radio stations. Please try again later.');
+    }
+}
+
+        // 라디오 방송국 목록 표시 함수
+        function displayRadioStations(stations) {
+            const radioStationsContainer = document.getElementById('radioStations');
+            radioStationsContainer.innerHTML = ''; // 이전 결과 초기화
+
+            if (stations.length === 0) {
+                radioStationsContainer.innerHTML = '<p>No stations found.</p>';
+                return;
+            }
+
+            stations.forEach(station => {
+                const stationElement = document.createElement('div');
+                stationElement.className = 'radio-station';
+
+                stationElement.innerHTML = `
+                    <h3>${station.name}</h3>
+                    <p><strong>Country:</strong> ${station.country}</p>
+                    <p><strong>Tags:</strong> ${station.tags}</p>
+                    <audio mute controls>
+                        <source src="${station.url_resolved}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
+
+                radioStationsContainer.appendChild(stationElement);
+            });
+        }
+    </script>
+    <script>
+     document.addEventListener('play', function(e){
+    var audios = document.getElementsByTagName('audio');
+    for(var i = 0, len = audios.length; i < len;i++){
+        if(audios[i] != e.target){
+            audios[i].pause();
+        }
+    }
+}, true);
+    </script>
+
+</body>
+</html>

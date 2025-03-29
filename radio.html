@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Online Radio Player</title>
+    <title>Online Radio Player</title>    
     <style>
 
     @import url(https://fonts.googleapis.com/css?family=Abril+Fatface&display=swap);
@@ -62,8 +62,9 @@
         }
 
 .button-85 {  
-  /*padding: 0.6em 9em;*/  
-  padding: 0.6em 8em;  
+  width: calc(100% - 20px); /* 좌우 여백을 제외한 전체 너비 */ 
+  /*padding: 0.6em 8em;*/
+  padding: 0.6em 1em;    
   border: none;
   outline: none;
   color: rgb(255, 255, 255);
@@ -75,7 +76,22 @@
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
-  margin: 10px
+  margin: 5px auto;
+  text-align: center;
+  font-size: 1rem;
+  display: block;
+}
+
+/* 미디어 쿼리 추가 */
+@media screen and (min-width: 768px) {
+    .button-85 {
+        width: 50%;  /* 화면의 50% 너비 */
+        min-width: 300px;  /* 최소 너비 설정 */
+        max-width: 600px;  /* 최대 너비 설정 */
+        padding: 0.6em 2em;
+        font-size: 1.1rem;
+        margin: 10px auto;
+    }
 }
 
 .button-85:before {
@@ -138,7 +154,9 @@
     <!--<input type="text" id="searchInput" placeholder="Search for a radio station...">
     <button onclick="searchRadioStations()">Search</button>-->
     <button class="button-85" role="button" onclick="searchRadioStations()">KOREA RADIO</button>
-    <button class="button-85" role="button" onclick="searchRadioStationsus()">USA RADIO</button>    
+    <button class="button-85" role="button" onclick="searchRadioStationsus()">USA RADIO</button>
+    <button class="button-85" role="button" onclick="searchRadioStationsworld()">WORLD TOP 30 RADIO</button> 
+    <button class="button-85" role="button" onclick="searchRadioStationsKoreanOverseas()">OVERSEAS KOREAN TOP 30 RADIO</button>   
 
     <button class="button-85" role="button" onclick="play()">ATLANTA RADIO KOREA</button>
     <audio id="audio" src="https://s2.radio.co/s481a3f747/listen"></audio>
@@ -151,7 +169,7 @@
     <button class="button-85" role="button" onclick="playAudio2()">NEW YORK RADIO KOREA</button>
     <audio id="audio2" src="https://streams.radio.co/s839c1142b/listen"></audio>
     <script>const playAudio2 = function(){document.getElementById("audio2").play()}</script>
- 
+
    
 
     <div id="radioStations"></div>
@@ -159,31 +177,36 @@
     <script>
         // 라디오 방송국 검색 함수 
         async function searchRadioStations() {
-    const apiUrl = 'https://nl1.api.radio-browser.info/json/stations/search';
-    const params = new URLSearchParams({
-        countrycode: 'KR',
-        limit: 20,
-        hidebroken: true
-    });
-    
     try {
-        const response = await fetch(`${apiUrl}?${params}`, {
+        // First get all available servers
+        const serverListResponse = await fetch('https://all.api.radio-browser.info/json/servers');
+        const servers = await serverListResponse.json();
+        
+        // Select a random server
+        const randomServer = servers[Math.floor(Math.random() * servers.length)];
+        const baseUrl = `https://${randomServer.name}`;
+        
+        const response = await fetch(`${baseUrl}/json/stations/bycountrycodeexact/KR?limit=30&order=clickcount&reverse=true`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': 'OnlineRadioPlayer/1.0'
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json'
             }
         });
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         displayRadioStations(data);
     } catch (error) {
-        console.error('Error fetching radio stations:', error);
-        alert('라디오 방송국을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.');
+        console.error('Error details:', error);
+        document.getElementById('radioStations').innerHTML = 
+            '<p style="color: white;">라디오 방송국을 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.</p>';
     }
 }
+
 
 
         // 라디오 방송국 목록 표시 함수
@@ -230,29 +253,33 @@
     <script>
         // 라디오 방송국 검색 함수
         async function searchRadioStationsus() {
-    const apiUrl = 'https://nl1.api.radio-browser.info/json/stations/search';
-    const params = new URLSearchParams({
-        countrycode: 'US',
-        limit: 20,
-        hidebroken: true
-    });
-    
     try {
-        const response = await fetch(`${apiUrl}?${params}`, {
+        // First get all available servers
+        const serverListResponse = await fetch('https://all.api.radio-browser.info/json/servers');
+        const servers = await serverListResponse.json();
+        
+        // Select a random server
+        const randomServer = servers[Math.floor(Math.random() * servers.length)];
+        const baseUrl = `https://${randomServer.name}`;
+        
+        const response = await fetch(`${baseUrl}/json/stations/bycountrycodeexact/US?limit=30&order=clickcount&reverse=true`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'User-Agent': 'OnlineRadioPlayer/1.0'
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json'
             }
         });
+        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
         displayRadioStations(data);
     } catch (error) {
-        console.error('Error fetching radio stations:', error);
-        alert('Failed to fetch radio stations. Please try again later.');
+        console.error('Error details:', error);
+        document.getElementById('radioStations').innerHTML = 
+            '<p style="color: white;">Failed to fetch radio stations. Please try again later.</p>';
     }
 }
 
@@ -284,6 +311,99 @@
             });
         }
     </script>
+
+    <script>
+        // 라디오 방송국 검색 함수
+        async function searchRadioStationsworld() {
+            try {
+        const serverListResponse = await fetch('https://all.api.radio-browser.info/json/servers');
+        const servers = await serverListResponse.json();
+        const randomServer = servers[Math.floor(Math.random() * servers.length)];
+        const baseUrl = `https://${randomServer.name}`;
+        
+        const response = await fetch(`${baseUrl}/json/stations/search?limit=30&order=clickcount&reverse=true`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        displayRadioStations(data);
+    } catch (error) {
+        console.error('Error details:', error);
+        document.getElementById('radioStations').innerHTML = 
+            '<p style="color: white;">Failed to fetch radio stations. Please try again later.</p>';
+    }
+}
+
+        // 라디오 방송국 목록 표시 함수
+        function displayRadioStations(stations) {
+            const radioStationsContainer = document.getElementById('radioStations');
+            radioStationsContainer.innerHTML = ''; // 이전 결과 초기화
+
+            if (stations.length === 0) {
+                radioStationsContainer.innerHTML = '<p>No stations found.</p>';
+                return;
+            }
+
+            stations.forEach(station => {
+                const stationElement = document.createElement('div');
+                stationElement.className = 'radio-station';
+
+                stationElement.innerHTML = `
+                    <h3>${station.name}</h3>
+                    <p><strong>Country:</strong> ${station.country}</p>
+                    <p><strong>Tags:</strong> ${station.tags}</p>
+                    <audio mute controls>
+                        <source src="${station.url_resolved}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
+
+                radioStationsContainer.appendChild(stationElement);
+            });
+        }
+    </script>
+
+    <script>
+        // 라디오 방송국 검색 함수
+        async function searchRadioStationsKoreanOverseas() {
+            try {
+        const serverListResponse = await fetch('https://all.api.radio-browser.info/json/servers');
+        const servers = await serverListResponse.json();
+        const randomServer = servers[Math.floor(Math.random() * servers.length)];
+        const baseUrl = `https://${randomServer.name}`;
+        
+        const response = await fetch(`${baseUrl}/json/stations/search?limit=30&order=clickcount&reverse=true&language=korean&tag=korean`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'Mozilla/5.0',
+                'Accept': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        displayRadioStations(data);
+    } catch (error) {
+        console.error('Error details:', error);
+        document.getElementById('radioStations').innerHTML = 
+            '<p style="color: white;">Failed to fetch radio stations. Please try again later.</p>';
+    }
+}
+
+    </script>
+
+
     <script>
      document.addEventListener('play', function(e){
     var audios = document.getElementsByTagName('audio');

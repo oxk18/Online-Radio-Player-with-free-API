@@ -227,7 +227,7 @@
                    <h3>${station.name}</h3>
                     <p><strong>Country:</strong> ${station.country}</p>
                     <p><strong>Tags:</strong> ${station.tags}</p>                    
-                    <audio muted controls>                        
+                    <audio mute controls>                        
                         <source src="${station.url_resolved}" type="audio/mpeg">                       
                         Your browser does not support the audio element.
                     </audio>
@@ -238,17 +238,7 @@
                 radioStationsContainer.appendChild(stationElement);
             });
         }
-    </script>
-    <script>
-     document.addEventListener('play', function(e){
-    var audios = document.getElementsByTagName('audio');
-    for(var i = 0, len = audios.length; i < len;i++){
-        if(audios[i] != e.target){
-            audios[i].pause();
-        }
-    }
-}, true);
-    </script>
+    </script>   
 
     <script>
         // 라디오 방송국 검색 함수
@@ -400,6 +390,34 @@
             '<p style="color: white;">Failed to fetch radio stations. Please try again later.</p>';
     }
 }
+
+// 라디오 방송국 목록 표시 함수
+function displayRadioStations(stations) {
+            const radioStationsContainer = document.getElementById('radioStations');
+            radioStationsContainer.innerHTML = ''; // 이전 결과 초기화
+
+            if (stations.length === 0) {
+                radioStationsContainer.innerHTML = '<p>No stations found.</p>';
+                return;
+            }
+
+            stations.forEach(station => {
+                const stationElement = document.createElement('div');
+                stationElement.className = 'radio-station';
+
+                stationElement.innerHTML = `
+                    <h3>${station.name}</h3>
+                    <p><strong>Country:</strong> ${station.country}</p>
+                    <p><strong>Tags:</strong> ${station.tags}</p>
+                    <audio mute controls>
+                        <source src="${station.url_resolved}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                `;
+
+                radioStationsContainer.appendChild(stationElement);
+            });
+        }
 
     </script>
 
